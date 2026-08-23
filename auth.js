@@ -184,67 +184,39 @@ async function handleRegister(e){
   const orgName = document.getElementById('regOrgName').value.trim();
   const orgRegNumber = document.getElementById('regOrgNumber').value.trim();
   const soloRegNumber = document.getElementById('regSoloNumber').value.trim();
+  const soloHasCompany = SOLO_OR_COMPANY_TYPES.includes(selectedAccountType) && selectedSoloMode === 'yes';
 
-  // 1) Supabase Auth account
-  const { data: signUpData, error: signUpError } = await supabaseClient.auth.signUp({ email, password });
+  // All the extra profile/organization data rides along as user metadata.
+  // A database trigger (see 02_handle_new_user.sql) reads this and creates
+  // the profiles/organizations rows automatically — this avoids the RLS
+  // timing issue where the client tries to insert before the session exists.
+  const metadata = {
+    full_name: fullName,
+    account_type: selectedAccountType,
+    market,
+    languages,
+  };
+  if(ORG_REQUIRED_TYPES.includes(selectedAccountType)){
+    metadata.organization_name = orgName;
+    metadata.organization_registration_number = orgRegNumber;
+  }
+  if(soloHasCompany){
+    metadata.solo_company_registration_number = soloRegNumber;
+  }
+
+  const { data: signUpData, error: signUpError } = await supabaseClient.auth.signUp({
+    email,
+    password,
+    options: { data: metadata },
+  });
   if(signUpError){
     showMsg(signUpError.message, 'error');
     btn.disabled = false; btn.textContent = 'Create account';
     return false;
   }
-  const userId = signUpData.user.id;
-  const initials = fullName.split(' ').map(w=>w[0]).slice(0,2).join('').toUpperCase();
 
-  // 2) If this account type is always a company, create the organization first
-  let organizationId = null;
-  if(ORG_REQUIRED_TYPES.includes(selectedAccountType)){
-    const { data: org, error: orgError } = await supabaseClient
-      .from('organizations')
-      .insert({
-        type: selectedAccountType,
-        name: orgName,
-        market,
-        owner_id: userId,
-        company_registration_number: orgRegNumber,
-        verified: !!orgRegNumber, // verified as soon as a registration number is on file
-      })
-      .select()
-      .single();
-    if(orgError){
-      showMsg('Account created, but the company record failed: ' + orgError.message, 'error');
-      btn.disabled = false; btn.textContent = 'Create account';
-      return false;
-    }
-    organizationId = org.id;
-  }
-
-  // 3) Verification for solo professionals (agent / architect) with their own company
-  const soloHasCompany = SOLO_OR_COMPANY_TYPES.includes(selectedAccountType) && selectedSoloMode === 'yes';
-
-  // 4) Create the profile — the person's own account always exists,
-  //    independent of any organization.
-  const { error: profileError } = await supabaseClient.from('profiles').insert({
-    id: userId,
-    full_name: fullName,
-    initials,
-    account_type: selectedAccountType,
-    market,
-    languages,
-    organization_id: organizationId,
-    company_registration_number: soloHasCompany ? soloRegNumber : null,
-    verified: ORG_REQUIRED_TYPES.includes(selectedAccountType)
-      ? true
-      : (soloHasCompany ? !!soloRegNumber : false),
-  });
-
-  if(profileError){
-    showMsg('Account created, but the profile failed: ' + profileError.message, 'error');
-    btn.disabled = false; btn.textContent = 'Create account';
-    return false;
-  }
-
-  // 5) Optional agency link request for solo agents (handled properly once
-  //    the agency Team/invitations module is connected)
+  // Optional agency link request for solo agents (handled properly once
+  // the agency Team/invitations module is connected)
   if(selectedAccountType === 'agent' && agencyLinkName){
     console.log('Agency link request:', agencyLinkName, '— to implement with the Team module.');
   }
