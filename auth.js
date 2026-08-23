@@ -8,7 +8,7 @@
 const SUPABASE_URL = 'https://bmfxoqpcykwftyctnsdc.supabase.co';
 const SUPABASE_ANON_KEY = 'sb_publishable_G4p1eXVVYkcSVXogwWXdTQ_Dy4DebyO';
 
-const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
 // After login/register, each account type goes to its own workspace.
 // private_seller / private_buyer workspaces don't exist yet — update these
@@ -116,7 +116,7 @@ async function handleLogin(e){
   const email = document.getElementById('loginEmail').value.trim();
   const password = document.getElementById('loginPassword').value;
 
-  const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+  const { data, error } = await supabaseClient.auth.signInWithPassword({ email, password });
 
   if(error){
     showMsg(error.message, 'error');
@@ -124,7 +124,7 @@ async function handleLogin(e){
     return false;
   }
 
-  const { data: profile, error: profileError } = await supabase
+  const { data: profile, error: profileError } = await supabaseClient
     .from('profiles')
     .select('account_type')
     .eq('id', data.user.id)
@@ -150,7 +150,7 @@ async function handleForgotPassword(e){
     showMsg('Enter your email above first, then click "Reset it here" again.', 'error');
     return;
   }
-  const { error } = await supabase.auth.resetPasswordForEmail(email);
+  const { error } = await supabaseClient.auth.resetPasswordForEmail(email);
   if(error){ showMsg(error.message, 'error'); }
   else{ showMsg('We sent you an email with reset instructions.', 'success'); }
 }
@@ -186,7 +186,7 @@ async function handleRegister(e){
   const soloRegNumber = document.getElementById('regSoloNumber').value.trim();
 
   // 1) Supabase Auth account
-  const { data: signUpData, error: signUpError } = await supabase.auth.signUp({ email, password });
+  const { data: signUpData, error: signUpError } = await supabaseClient.auth.signUp({ email, password });
   if(signUpError){
     showMsg(signUpError.message, 'error');
     btn.disabled = false; btn.textContent = 'Create account';
@@ -198,7 +198,7 @@ async function handleRegister(e){
   // 2) If this account type is always a company, create the organization first
   let organizationId = null;
   if(ORG_REQUIRED_TYPES.includes(selectedAccountType)){
-    const { data: org, error: orgError } = await supabase
+    const { data: org, error: orgError } = await supabaseClient
       .from('organizations')
       .insert({
         type: selectedAccountType,
@@ -223,7 +223,7 @@ async function handleRegister(e){
 
   // 4) Create the profile — the person's own account always exists,
   //    independent of any organization.
-  const { error: profileError } = await supabase.from('profiles').insert({
+  const { error: profileError } = await supabaseClient.from('profiles').insert({
     id: userId,
     full_name: fullName,
     initials,
