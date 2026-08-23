@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>LuciHome — Sign in</title>
+<link rel="icon" type="image/png" href="lucihome.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="workspace.css">
+<link rel="stylesheet" href="auth.css">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+<body>
+
+<div class="auth-shell">
+  <div class="auth-brand">
+    <img src="lucihome.png" alt="LuciHome">
+    <span>LuciHome</span>
+  </div>
+
+  <div class="auth-card">
+    <div class="auth-tabs">
+      <button class="auth-tab active" id="tabLogin" onclick="switchAuthTab('login')">Sign in</button>
+      <button class="auth-tab" id="tabRegister" onclick="switchAuthTab('register')">Create account</button>
+    </div>
+
+    <div id="authMsg" class="auth-msg"></div>
+
+    <!-- ============================ LOGIN ============================ -->
+    <form class="auth-form visible" id="loginForm" onsubmit="return handleLogin(event)">
+      <p class="auth-title">Welcome back</p>
+      <p class="auth-sub">Sign in to your LuciHome account.</p>
+
+      <div class="field">
+        <label class="field-label">Email</label>
+        <input class="input" type="email" id="loginEmail" placeholder="you@email.com" required>
+      </div>
+      <div class="field">
+        <label class="field-label">Password</label>
+        <input class="input" type="password" id="loginPassword" placeholder="••••••••" required>
+      </div>
+
+      <button class="btn-primary" type="submit" id="loginBtn">Sign in</button>
+      <p class="auth-footnote">Forgot your password? <a href="#" onclick="handleForgotPassword(event)">Reset it here</a></p>
+    </form>
+
+    <!-- ============================ REGISTER ============================ -->
+    <form class="auth-form" id="registerForm" onsubmit="return handleRegister(event)">
+      <p class="auth-title">Create your account</p>
+      <p class="auth-sub">Choose the account type that fits you best.</p>
+
+      <div class="field">
+        <label class="field-label">Account type *</label>
+        <div class="account-type-grid" id="accountTypeGrid">
+          <div class="account-type-opt" data-type="agency">Real Estate Agency</div>
+          <div class="account-type-opt" data-type="agent">Individual Agent</div>
+          <div class="account-type-opt" data-type="architect">Architect / Designer</div>
+          <div class="account-type-opt" data-type="developer">Developer</div>
+          <div class="account-type-opt" data-type="brand_supplier">Brand & Supplier</div>
+          <div class="account-type-opt" data-type="private_seller">Private Seller</div>
+          <div class="account-type-opt" data-type="private_buyer">Private Buyer</div>
+        </div>
+      </div>
+
+      <!-- Visible only for Agency / Developer / Brand & Supplier -->
+      <div class="field" id="orgNameField" style="display:none">
+        <label class="field-label">Company name *</label>
+        <input class="input" id="regOrgName" placeholder="e.g. Bucharest Prime Realty">
+      </div>
+      <div class="field" id="orgRegNumberField" style="display:none">
+        <label class="field-label">Company registration number *</label>
+        <input class="input" id="regOrgNumber" placeholder="e.g. RO12345678">
+        <p class="field-hint">Used to verify your company. Your account gets a "Verified" badge once submitted.</p>
+      </div>
+
+      <!-- Visible only for Agent / Architect: solo professional vs has a company -->
+      <div class="field" id="soloCompanyToggle" style="display:none">
+        <label class="field-label">Do you operate under a registered company?</label>
+        <div class="account-type-grid" style="grid-template-columns:1fr 1fr">
+          <div class="account-type-opt" data-solo="yes">Yes, I have a company</div>
+          <div class="account-type-opt" data-solo="no">No, I'm an independent professional (PFA)</div>
+        </div>
+      </div>
+      <div class="field" id="soloRegNumberField" style="display:none">
+        <label class="field-label">Company registration number *</label>
+        <input class="input" id="regSoloNumber" placeholder="e.g. RO12345678">
+        <p class="field-hint">Your account gets a "Verified" badge once submitted.</p>
+      </div>
+
+      <!-- Visible only for Agent: optional link to an existing agency -->
+      <div class="agency-linking" id="agencyLinking">
+        <p>Already working with an agency registered on LuciHome? Your account stays independent either way — this just sends a link request.</p>
+        <input class="input" id="agencyLinkName" placeholder="Agency name (optional)">
+      </div>
+
+      <div class="field">
+        <label class="field-label">Full name *</label>
+        <input class="input" id="regName" placeholder="e.g. Diana Cristescu" required>
+      </div>
+
+      <div class="field-row">
+        <div class="field">
+          <label class="field-label">Market / City</label>
+          <input class="input" id="regMarket" placeholder="e.g. Bucharest">
+        </div>
+        <div class="field">
+          <label class="field-label">Languages spoken</label>
+          <input class="input" id="regLanguages" placeholder="e.g. EN, RO">
+        </div>
+      </div>
+
+      <div class="field">
+        <label class="field-label">Email *</label>
+        <input class="input" type="email" id="regEmail" placeholder="you@email.com" required>
+      </div>
+
+      <div class="field">
+        <label class="field-label">Password *</label>
+        <input class="input" type="password" id="regPassword" placeholder="minimum 8 characters" minlength="8" required>
+      </div>
+
+      <button class="btn-primary" type="submit" id="registerBtn">Create account</button>
+      <p class="auth-footnote">By creating an account you agree to LuciHome's Terms and Privacy Policy.</p>
+    </form>
+  </div>
+</div>
+
+<script src="auth.js"></script>
+</body>
+</html>
