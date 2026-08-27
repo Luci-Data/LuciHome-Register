@@ -230,7 +230,7 @@ document.addEventListener('click', closeAllDropdowns);
 
 function logoutDemo(){
   closeAllDropdowns();
-  toast('info', 'Demo', 'This is a demonstration — real logout will be active at the August 30, 2026 launch.');
+  signOut(); // real Supabase sign-out, defined in supabase-client.js
 }
 
 /* ---------------------------------------------------------------------- */
