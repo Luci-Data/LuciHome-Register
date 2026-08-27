@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>LuciHome — Find your next property</title>
+<link rel="icon" type="image/png" href="lucihome.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="public.css">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+<body>
+
+<!-- ============================ TOP BAR ============================ -->
+<div class="topbar">
+  <div class="topbar-logo"><img src="lucihome.png" alt="LuciHome"><span>LuciHome</span></div>
+  <div class="topbar-actions">
+    <a href="auth.html" class="btn-ghost">Sign in</a>
+    <a href="auth.html" class="btn-solid">List your property</a>
+  </div>
+</div>
+
+<!-- ============================ CATEGORY TABS ============================ -->
+<div class="category-tabs" id="categoryTabs">
+  <button class="cat-tab active" data-cat="property">Properties</button>
+  <button class="cat-tab" data-cat="developer">Browse Developers</button>
+  <button class="cat-tab" data-cat="architect">Browse Architects & Designers</button>
+  <button class="cat-tab" data-cat="agent">Browse Agents</button>
+</div>
+
+<!-- ============================ FILTER BAR (properties only) ============================ -->
+<div class="filter-bar" id="propertyFilters">
+  <div class="filter-field">
+    <label>Country</label>
+    <select id="fCountry"><option value="">All countries</option></select>
+  </div>
+  <div class="filter-field">
+    <label>City</label>
+    <input type="text" id="fCity" placeholder="e.g. Paris">
+  </div>
+  <div class="filter-field">
+    <label>Buy / Rent</label>
+    <select id="fTransaction">
+      <option value="">Any</option>
+      <option value="sale">Buy</option>
+      <option value="rent">Rent</option>
+    </select>
+  </div>
+  <div class="filter-field">
+    <label>Property type</label>
+    <select id="fType">
+      <option value="">Any</option>
+      <option value="apartment">Apartment</option>
+      <option value="house">House</option>
+      <option value="villa">Villa</option>
+      <option value="land">Land</option>
+      <option value="commercial">Commercial</option>
+      <option value="office">Office</option>
+      <option value="other">Other</option>
+    </select>
+  </div>
+  <div class="filter-field">
+    <label>Price range</label>
+    <div class="filter-price">
+      <input type="number" id="fMinPrice" placeholder="Min">
+      <input type="number" id="fMaxPrice" placeholder="Max">
+    </div>
+  </div>
+  <div class="filter-field">
+    <label>Keyword</label>
+    <input type="text" id="fKeyword" placeholder="e.g. balcony, seaview">
+  </div>
+  <button class="filter-search-btn" onclick="loadProperties()">Search</button>
+</div>
+
+<!-- ============================ RESULTS ============================ -->
+<div class="results-header" id="resultsHeader"></div>
+<div class="results-grid" id="resultsGrid"></div>
+
+<script src="public.js"></script>
+</body>
+</html>
