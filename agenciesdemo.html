@@ -1,0 +1,928 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+          <!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-GQG0HRP6TD"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-GQG0HRP6TD');
+</script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>LuciHome — Agency Workspace Demo</title>
+<link rel="icon" type="image/png" href="/lucihome.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&family=Roboto+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/tabler-icons/3.44.0/tabler-icons.min.css">
+<link rel="stylesheet" href="workspaceagencies.css">
+</head>
+<body>
+
+<!-- ============================= TOPBAR ============================= -->
+<header class="topbar">
+  <button class="hamburger" id="hamburgerBtn" aria-label="Open menu"><i class="ti ti-menu-2"></i></button>
+  <div class="topbar-brand">
+    <div class="mark">
+    <img src="lucihome.png" alt="LuciHome Logo" class="logo-img">
+</div>
+<div class="wordmark">LuciHome</div>
+  </div>
+
+  <div class="topbar-search">
+    <i class="ti ti-search"></i>
+    <input type="text" id="globalSearch" placeholder="Search agents, listings, clients...">
+  </div>
+
+  <div class="topbar-actions">
+    <div class="dropdown" id="notifDropdown">
+      <button class="icon-btn" id="notifBtn" aria-label="Notifications">
+        <i class="ti ti-bell"></i>
+        <span class="dot" id="notifCount">5</span>
+      </button>
+      <div class="dropdown-panel notif-panel" id="notifPanel">
+        <div class="dropdown-header"><strong>Notifications</strong>5 unread</div>
+        <div id="notifList"></div>
+        <div class="notif-footer"><button id="markAllReadBtn">Mark all as read</button></div>
+      </div>
+    </div>
+
+    <div class="dropdown" id="msgDropdown">
+      <button class="icon-btn" id="msgBtn" aria-label="Messages">
+        <i class="ti ti-message-dots"></i>
+        <span class="dot">2</span>
+      </button>
+      <div class="dropdown-panel notif-panel">
+        <div class="dropdown-header"><strong>Recent messages</strong>2 unread conversations</div>
+        <div class="notif-item unread"><div class="notif-icon"><i class="ti ti-user"></i></div><div class="notif-text"><p><strong>Elena Radu</strong> (agent) — "Can you approve the Pipera listing today?"</p><span>22 min ago</span></div></div>
+        <div class="notif-item unread"><div class="notif-icon"><i class="ti ti-building"></i></div><div class="notif-text"><p><strong>Paris Prestige Immobilier</strong> — new referral received</p><span>2 h ago</span></div></div>
+        <div class="notif-footer"><button onclick="showSection('team')">Open Team</button></div>
+      </div>
+    </div>
+
+    <button class="icon-btn" onclick="toast('info','Help center','The LuciHome guides open in a new tab (demo).')" aria-label="Help"><i class="ti ti-help-circle"></i></button>
+
+    <div class="dropdown" id="avatarDropdown">
+      <div class="topbar-avatar" id="avatarBtn" title="Your account">DC</div>
+      <div class="dropdown-panel" id="avatarPanel">
+        <div class="dropdown-header"><strong>Diana Cristescu</strong>Agency Manager · Bucharest Prime Realty</div>
+        <div class="dropdown-item" onclick="showSection('brand');closeAllDropdowns()"><i class="ti ti-building-skyscraper"></i>Agency profile</div>
+        <div class="dropdown-item" onclick="showSection('settings');closeAllDropdowns()"><i class="ti ti-settings"></i>Settings</div>
+        <div class="dropdown-sep"></div>
+        <div class="dropdown-item danger" onclick="logoutDemo()"><i class="ti ti-logout"></i>Log out</div>
+      </div>
+    </div>
+  </div>
+</header>
+
+<div class="app-shell">
+<!-- ============================= LEFT NAV ============================= -->
+<nav class="sidebar" id="sidebar">
+
+  <div class="nav-quick-create">
+    <button id="quickCreateBtn" onclick="toggleQuickCreate(event)"><i class="ti ti-plus"></i>New</button>
+    <div class="nav-quick-menu" id="quickCreateMenu">
+      <div class="dropdown-item" onclick="closeQuickCreate();openModal('modal-add-listing')"><i class="ti ti-home-2"></i>New listing</div>
+      <div class="dropdown-item" onclick="closeQuickCreate();openModal('modal-add-contact')"><i class="ti ti-user-plus"></i>New lead</div>
+      <div class="dropdown-item" onclick="closeQuickCreate();openModal('modal-send-referral')"><i class="ti ti-send"></i>New referral</div>
+      <div class="dropdown-item" onclick="closeQuickCreate();openModal('modal-invite-agent')"><i class="ti ti-mail-plus"></i>Invite agent</div>
+    </div>
+  </div>
+
+  <div class="nav-group-label">Workspace</div>
+  <button class="nav-item active" data-section="dashboard" onclick="showSection('dashboard')"><i class="ti ti-layout-dashboard"></i>Dashboard</button>
+  <button class="nav-item" data-section="team" onclick="showSection('team')"><i class="ti ti-users"></i>Team<span class="nbadge">14</span></button>
+  <button class="nav-item" data-section="listings" onclick="showSection('listings')"><i class="ti ti-home-2"></i>Listings<span class="nbadge">87</span></button>
+  <button class="nav-item" data-section="crm" onclick="showSection('crm')"><i class="ti ti-user-search"></i>Leads &amp; CRM<span class="nbadge">9</span></button>
+  <button class="nav-item" data-section="transactions" onclick="showSection('transactions')"><i class="ti ti-file-invoice"></i>Transactions<span class="nbadge">23</span></button>
+  <button class="nav-item" data-section="referrals" onclick="showSection('referrals')"><i class="ti ti-arrows-exchange"></i>Referrals</button>
+
+  <div class="nav-group-label">Intelligence</div>
+  <button class="nav-item" data-section="network" onclick="showSection('network')"><i class="ti ti-network"></i>Professional Network</button>
+  <button class="nav-item" data-section="analytics" onclick="showSection('analytics')"><i class="ti ti-chart-bar"></i>Analytics</button>
+
+  <div class="nav-group-label">Account</div>
+  <button class="nav-item" data-section="brand" onclick="showSection('brand')"><i class="ti ti-building-skyscraper"></i>Brand &amp; Profile</button>
+  <button class="nav-item" data-section="settings" onclick="showSection('settings')"><i class="ti ti-settings"></i>Settings</button>
+
+  <div class="sidebar-foot">
+    <p><strong>Founding Agency Plan</strong><br>Unlimited agent seats at launch — August 30, 2026.</p>
+    <button class="btn-secondary btn-sm btn-block" onclick="showSection('settings');switchTab('settings','settings-billing')">View subscription</button>
+  </div>
+</nav>
+
+<!-- ============================= MAIN ============================= -->
+<main class="main">
+<div class="content-wrap">
+
+<!-- ======================================================================
+     DASHBOARD
+====================================================================== -->
+<section class="module-section visible" id="section-dashboard">
+  <div class="breadcrumb"><i class="ti ti-layout-dashboard"></i> Agency Workspace / Dashboard</div>
+  <div class="page-header">
+    <div>
+      <h1 class="page-title">Good morning, Diana</h1>
+      <p class="page-sub">Here's how Bucharest Prime Realty is doing today, July 11, 2026 — across all 14 agents. 3 items need your attention and 2 leads are still unassigned.</p>
+    </div>
+    <div class="page-actions">
+      <button class="btn-secondary" onclick="showSection('analytics')"><i class="ti ti-chart-bar"></i>View full report</button>
+      <button class="btn-primary" onclick="openModal('modal-invite-agent')"><i class="ti ti-user-plus"></i>Invite agent</button>
+    </div>
+  </div>
+
+  <div class="section-label" style="margin-top:0">Agency-wide overview</div>
+  <div class="grid grid-4" style="margin-bottom:28px">
+    <div class="stat-card"><div class="value">14</div><div class="label">Active agents</div><div class="delta up"><i class="ti ti-trending-up"></i> +2 this quarter</div></div>
+    <div class="stat-card"><div class="value">87</div><div class="label">Active listings</div><div class="delta up"><i class="ti ti-trending-up"></i> +9 this month</div></div>
+    <div class="stat-card"><div class="value">23</div><div class="label">Open transactions</div><div class="delta down"><i class="ti ti-minus"></i> unchanged</div></div>
+    <div class="stat-card"><div class="value">€2.4M</div><div class="label">Pipeline value</div><div class="delta up"><i class="ti ti-trending-up"></i> +€180k this month</div></div>
+  </div>
+
+  <div class="section-label">This week, across the team</div>
+  <div class="grid grid-12" style="margin-bottom:28px">
+    <div class="span-8">
+      <div class="card">
+        <p class="mt" style="font-size:15px;margin-bottom:14px">Agency-wide listing views &amp; new leads, last 7 days</p>
+        <div class="chart-wrap" id="dashTrendChart"></div>
+      </div>
+    </div>
+    <div class="span-4">
+      <div class="card">
+        <p class="mt" style="font-size:15px;margin-bottom:14px">Pipeline by stage</p>
+        <div class="chart-wrap" id="dashFunnelDonut"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section-label">Priority modules</div>
+  <div class="grid grid-12" style="margin-bottom:8px">
+    <div class="span-8">
+      <div class="card" style="margin-bottom:16px">
+        <div class="flex-between" style="margin-bottom:6px">
+          <p class="mt" style="font-size:15px">Agency activity feed</p>
+          <button class="btn-ghost btn-sm" onclick="markAllFeedRead()">Mark all read</button>
+        </div>
+        <p class="ms" style="margin-bottom:6px">Every event across the entire team — new listings, assigned leads, transaction updates, referrals — in one real-time feed.</p>
+        <div id="feedList"></div>
+      </div>
+      <div class="card">
+        <p class="mt" style="font-size:15px;margin-bottom:4px">Needs attention</p>
+        <p class="ms" style="margin-bottom:6px">Leads not responded to in 48h, listings expiring this week, transactions missing documents — flagged for manager action.</p>
+        <div id="attentionList"></div>
+      </div>
+    </div>
+
+    <div class="span-4">
+      <div class="card" style="margin-bottom:16px">
+        <div class="flex-between" style="margin-bottom:4px"><p class="mt">Agent leaderboard</p><span class="badge badge-info"><i class="ti ti-trophy"></i>This month</span></div>
+        <p class="ms" style="margin-bottom:6px">Ranked by closed transactions and revenue generated.</p>
+        <div id="leaderboardList"></div>
+      </div>
+      <div class="card">
+        <p class="mt">Revenue this month</p>
+        <div class="mini-stat" style="margin-bottom:8px"><p class="v">€41,300</p><p class="l">Earned (closed deals)</p></div>
+        <div class="mini-stat" style="margin-bottom:8px"><p class="v">€22,600</p><p class="l">Pending (in transaction)</p></div>
+        <div class="mini-stat"><p class="v">€96,000</p><p class="l">Projected (pipeline)</p></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ======================================================================
+     TEAM
+====================================================================== -->
+<section class="module-section" id="section-team">
+  <div class="breadcrumb"><i class="ti ti-users"></i> Agency Workspace / Team</div>
+  <div class="page-header">
+    <div>
+      <h1 class="page-title">Team</h1>
+      <p class="page-sub">The core differentiator of the Agency workspace — invite agents, control roles and permissions, track performance, assign leads and manage commission splits, all from one place.</p>
+    </div>
+    <div class="page-actions">
+      <button class="btn-primary" onclick="openModal('modal-invite-agent')"><i class="ti ti-user-plus"></i>Invite agent</button>
+    </div>
+  </div>
+
+  <div class="grid grid-4" style="margin-bottom:24px">
+    <div class="mini-stat"><p class="v">14</p><p class="l">Active agents</p></div>
+    <div class="mini-stat"><p class="v">2</p><p class="l">Pending invites</p></div>
+    <div class="mini-stat"><p class="v">6.4h</p><p class="l">Avg. lead response time</p></div>
+    <div class="mini-stat"><p class="v">14 / 20</p><p class="l">Seats used</p></div>
+  </div>
+
+  <div class="card" style="margin-bottom:20px">
+    <div class="flex flex-gap" style="flex-wrap:wrap;align-items:center">
+      <div class="topbar-search" style="max-width:280px">
+        <i class="ti ti-search"></i>
+        <input type="text" class="input" style="padding-left:34px;border-radius:8px" id="agentSearch" placeholder="Search agents by name or market..." oninput="renderAgents()">
+      </div>
+      <select class="select" id="agentRoleFilter" style="max-width:190px" onchange="renderAgents()">
+        <option value="all">All roles</option>
+        <option value="Manager">Manager</option>
+        <option value="Senior Agent">Senior Agent</option>
+        <option value="Agent">Agent</option>
+        <option value="Junior Agent">Junior Agent</option>
+      </select>
+    </div>
+  </div>
+
+  <div class="section-label" style="margin-top:0">Agent roster</div>
+  <div id="agentsGrid" class="grid grid-3" style="margin-bottom:28px"></div>
+
+  <div class="section-label">Team operations</div>
+  <div class="grid grid-12">
+    <div class="span-8">
+      <div class="card" style="margin-bottom:16px">
+        <p class="mt">Team calendar</p>
+        <p class="ms" style="margin-bottom:6px">Shared calendar — property viewings, client meetings, team calls. Each agent's schedule is visible to the manager.</p>
+        <div id="teamAgendaList"></div>
+      </div>
+      <div class="card">
+        <p class="mt">Training &amp; resources library</p>
+        <p class="ms" style="margin-bottom:10px">Upload documents, guides, scripts and market reports — accessible to every agent from their own workspace.</p>
+        <div id="resourcesList"></div>
+        <button class="btn-secondary btn-sm" style="margin-top:12px" onclick="uploadResource()"><i class="ti ti-cloud-upload"></i>Upload resource</button>
+      </div>
+    </div>
+    <div class="span-4">
+      <div class="card">
+        <p class="mt">Roles &amp; permissions</p>
+        <p class="ms" style="margin-bottom:12px">Each role controls what an agent can see, edit, publish and access.</p>
+        <div class="feed-item" style="border:none;padding:8px 0"><div class="fi-icon"><i class="ti ti-shield-check"></i></div><div class="fi-text"><p><strong>Manager</strong> — full agency control</p></div></div>
+        <div class="feed-item" style="border:none;padding:8px 0"><div class="fi-icon"><i class="ti ti-star"></i></div><div class="fi-text"><p><strong>Senior Agent</strong> — publish without approval</p></div></div>
+        <div class="feed-item" style="border:none;padding:8px 0"><div class="fi-icon"><i class="ti ti-user"></i></div><div class="fi-text"><p><strong>Agent</strong> — full CRM &amp; listings access</p></div></div>
+        <div class="feed-item" style="border:none;padding:8px 0"><div class="fi-icon"><i class="ti ti-alert-triangle"></i></div><div class="fi-text"><p><strong>Junior Agent</strong> — listings need approval</p></div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ======================================================================
+     LISTINGS
+====================================================================== -->
+<section class="module-section" id="section-listings">
+  <div class="breadcrumb"><i class="ti ti-home-2"></i> Agency Workspace / Listings</div>
+  <div class="page-header">
+    <div>
+      <h1 class="page-title">Agency Listings</h1>
+      <p class="page-sub">Every listing across the entire team. Edit, republish, reassign or feature any property — individual agents only see and manage their own.</p>
+    </div>
+    <div class="page-actions">
+      <button class="btn-primary" onclick="openModal('modal-add-listing')"><i class="ti ti-plus"></i>Add new listing</button>
+    </div>
+  </div>
+
+  <div class="card" style="margin-bottom:20px">
+    <div class="flex flex-gap" style="flex-wrap:wrap;align-items:center">
+      <div class="topbar-search" style="max-width:260px">
+        <i class="ti ti-search"></i>
+        <input type="text" class="input" style="padding-left:34px;border-radius:8px" id="listingSearch" placeholder="Search by title or city..." oninput="renderListings()">
+      </div>
+      <select class="select assignee-select" id="listingAgentFilter" onchange="renderListings()">
+        <option value="all">All agents</option>
+      </select>
+      <select class="select" id="listingStatusFilter" style="max-width:170px" onchange="renderListings()">
+        <option value="all">All statuses</option>
+        <option value="pending">Pending approval</option>
+        <option value="draft">Draft</option>
+        <option value="active">Active</option>
+        <option value="offer">Under offer</option>
+        <option value="sold">Sold / Rented</option>
+      </select>
+      <div class="flex flex-gap" style="margin-left:auto">
+        <button class="btn-icon btn-secondary" id="gridViewBtn" onclick="setListingView('grid')" title="Grid"><i class="ti ti-layout-grid"></i></button>
+        <button class="btn-icon btn-secondary" id="listViewBtn" onclick="setListingView('list')" title="List"><i class="ti ti-list"></i></button>
+      </div>
+    </div>
+  </div>
+
+  <div class="section-label" style="margin-top:0">Pending your approval</div>
+  <div id="approvalList" style="margin-bottom:8px"></div>
+
+  <div class="section-label">All agency listings</div>
+  <div id="listingsGrid" class="grid grid-3"></div>
+
+  <div class="section-label">Listing creation flow (with approval)</div>
+  <div class="flow-row">
+    <div class="fs">Agent creates listing</div><span class="fa">→</span>
+    <div class="fs">Submits for review</div><span class="fa">→</span>
+    <div class="fs">Manager reviews</div><span class="fa">→</span>
+    <div class="fs">Changes requested or approved</div><span class="fa">→</span>
+    <div class="fs done"><i class="ti ti-check"></i> Published on LuciHome</div>
+  </div>
+</section>
+
+<!-- ======================================================================
+     LEADS & CRM
+====================================================================== -->
+<section class="module-section" id="section-crm">
+  <div class="breadcrumb"><i class="ti ti-user-search"></i> Agency Workspace / Leads &amp; CRM</div>
+  <div class="page-header">
+    <div>
+      <h1 class="page-title">Leads &amp; CRM</h1>
+      <p class="page-sub">Every lead across the agency — assign to the right agent, track response times, and keep a shared client database even if an agent leaves.</p>
+    </div>
+    <div class="page-actions">
+      <button class="btn-primary" onclick="openModal('modal-add-contact')"><i class="ti ti-user-plus"></i>Add lead</button>
+    </div>
+  </div>
+
+  <div class="grid grid-4" style="margin-bottom:20px">
+    <div class="mini-stat"><p class="v" id="crmUnassignedCount">0</p><p class="l">Unassigned leads</p></div>
+    <div class="mini-stat"><p class="v">6.4h</p><p class="l">Avg. response time</p></div>
+    <div class="mini-stat"><p class="v" id="crmOver24Count">0</p><p class="l">Over 24h, no reply</p></div>
+    <div class="mini-stat"><p class="v" id="crmClosedCount">0</p><p class="l">Closed this month</p></div>
+  </div>
+
+  <div class="card" style="margin-bottom:18px">
+    <div class="flex flex-gap" style="flex-wrap:wrap;align-items:center">
+      <div class="topbar-search" style="max-width:300px">
+        <i class="ti ti-search"></i>
+        <input type="text" class="input" style="padding-left:34px;border-radius:8px" id="crmSearch" placeholder="Search client by name or tag..." oninput="renderKanban()">
+      </div>
+      <select class="select assignee-select" id="crmAgentFilter" onchange="renderKanban()">
+        <option value="all">All agents</option>
+      </select>
+    </div>
+  </div>
+
+  <div class="section-label" style="margin-top:0">Agency pipeline board</div>
+  <div class="kanban" id="kanbanBoard"></div>
+</section>
+
+<!-- ======================================================================
+     TRANSACTIONS
+====================================================================== -->
+<section class="module-section" id="section-transactions">
+  <div class="breadcrumb"><i class="ti ti-file-invoice"></i> Agency Workspace / Transactions</div>
+  <div class="page-header">
+    <div>
+      <h1 class="page-title">Deal Room — All Transactions</h1>
+      <p class="page-sub">Every open deal across all agents, in one place — monitor timelines, documents and commission splits, and step in before a deal stalls.</p>
+    </div>
+    <div class="page-actions">
+      <button class="btn-secondary" onclick="toggleArchive()"><i class="ti ti-archive"></i><span id="archiveBtnLabel">Closed deals archive</span></button>
+    </div>
+  </div>
+
+  <div class="workspace-grid">
+    <div class="panel-list">
+      <div class="section-label" style="margin-top:0">Open transactions</div>
+      <div id="txList" class="tx-stack"></div>
+      <div id="txArchive" style="display:none;margin-top:20px"></div>
+    </div>
+    <div class="panel-detail">
+      <div class="card" id="dealRoom">
+        <!-- populated by JS -->
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ======================================================================
+     REFERRALS
+====================================================================== -->
+<section class="module-section" id="section-referrals">
+  <div class="breadcrumb"><i class="ti ti-arrows-exchange"></i> Agency Workspace / Referrals</div>
+  <div class="page-header">
+    <div>
+      <h1 class="page-title">Cross-border Referrals</h1>
+      <p class="page-sub">LuciHome's most powerful growth engine — send and receive client referrals from partner agencies worldwide. Commissions are agreed in the platform and tracked automatically.</p>
+    </div>
+    <div class="page-actions">
+      <button class="btn-primary" onclick="openModal('modal-send-referral')"><i class="ti ti-send"></i>Send a referral</button>
+    </div>
+  </div>
+
+  <div class="grid grid-4" style="margin-bottom:24px">
+    <div class="mini-stat"><p class="v" id="refSentCount">0</p><p class="l">Sent</p></div>
+    <div class="mini-stat"><p class="v" id="refReceivedCount">0</p><p class="l">Received</p></div>
+    <div class="mini-stat"><p class="v" id="refProgressCount">0</p><p class="l">In progress</p></div>
+    <div class="mini-stat"><p class="v" id="refClosedCount">0</p><p class="l">Closed</p></div>
+  </div>
+
+  <div class="tabs">
+    <button class="tab-btn active" data-tab="referrals-sent" onclick="switchTab('referrals',this.dataset.tab)">Sent</button>
+    <button class="tab-btn" data-tab="referrals-received" onclick="switchTab('referrals',this.dataset.tab)">Received</button>
+    <button class="tab-btn" data-tab="referrals-partners" onclick="switchTab('referrals',this.dataset.tab)">Preferred agency partners</button>
+  </div>
+
+  <div class="tab-panel visible" id="referrals-sent"><div id="sentReferralsList" class="grid grid-2"></div></div>
+  <div class="tab-panel" id="referrals-received"><div id="receivedReferralsList" class="grid grid-2"></div></div>
+  <div class="tab-panel" id="referrals-partners"><div id="partnersList" class="grid grid-3"></div></div>
+
+  <div class="section-label">Cross-border referral flow</div>
+  <div class="flow-row">
+    <div class="fs">Client wants to buy abroad</div><span class="fa">→</span>
+    <div class="fs">Agency finds partner in destination</div><span class="fa">→</span>
+    <div class="fs">Referral sent with brief</div><span class="fa">→</span>
+    <div class="fs">Partner accepts + assigns agent</div><span class="fa">→</span>
+    <div class="fs">Deal closes</div><span class="fa">→</span>
+    <div class="fs done"><i class="ti ti-check"></i> Commission split auto-applied</div>
+  </div>
+</section>
+
+<!-- ======================================================================
+     NETWORK
+====================================================================== -->
+<section class="module-section" id="section-network">
+  <div class="breadcrumb"><i class="ti ti-network"></i> Agency Workspace / Professional Network</div>
+  <div class="page-header">
+    <div>
+      <h1 class="page-title">Professional Network</h1>
+      <p class="page-sub">Connect with other agencies, individual agents, developers, notaries and lawyers — a global network that generates leads and referrals passively.</p>
+    </div>
+  </div>
+
+  <div class="tabs">
+    <button class="tab-btn active" data-tab="network-directory" onclick="switchTab('network',this.dataset.tab)">Professional directory</button>
+    <button class="tab-btn" data-tab="network-mine" onclick="switchTab('network',this.dataset.tab)">Agency network</button>
+    <button class="tab-btn" data-tab="network-projects" onclick="switchTab('network',this.dataset.tab)">Developer projects</button>
+    <button class="tab-btn" data-tab="network-groups" onclick="switchTab('network',this.dataset.tab)">Market groups</button>
+  </div>
+
+  <div class="tab-panel visible" id="network-directory">
+    <div class="card" style="margin-bottom:18px">
+      <div class="flex flex-gap" style="flex-wrap:wrap">
+        <input class="input" style="max-width:220px" id="dirSearch" placeholder="Search by name..." oninput="renderDirectory()">
+        <select class="select" style="max-width:200px" id="dirType" onchange="renderDirectory()">
+          <option value="all">All types</option>
+          <option value="Agency">Agency</option>
+          <option value="Agent">Agent</option>
+          <option value="Notary">Notary</option>
+          <option value="Lawyer">Lawyer</option>
+          <option value="Developer">Developer</option>
+          <option value="Bank">Bank</option>
+        </select>
+      </div>
+    </div>
+    <div class="grid grid-3" id="directoryGrid"></div>
+  </div>
+
+  <div class="tab-panel" id="network-mine">
+    <p class="ms" style="margin-bottom:14px">Partner agencies your team is actively collaborating with, organized by market and region.</p>
+    <div class="grid grid-3" id="myNetworkGrid"></div>
+  </div>
+
+  <div class="tab-panel" id="network-projects">
+    <p class="ms" style="margin-bottom:14px">Developers looking for agencies to sell their off-plan projects.</p>
+    <div class="grid grid-2" id="devProjectsGrid"></div>
+  </div>
+
+  <div class="tab-panel" id="network-groups">
+    <div class="grid grid-3" id="marketGroupsGrid"></div>
+  </div>
+</section>
+
+<!-- ======================================================================
+     BRAND & PROFILE
+====================================================================== -->
+<section class="module-section" id="section-brand">
+  <div class="breadcrumb"><i class="ti ti-building-skyscraper"></i> Agency Workspace / Brand &amp; Profile</div>
+  <div class="page-header">
+    <div>
+      <h1 class="page-title">Agency Brand &amp; Public Profile</h1>
+      <p class="page-sub">What buyers, developers and partner agencies see when they visit your agency page on LuciHome.</p>
+    </div>
+    <div class="page-actions">
+      <button class="btn-secondary" id="editProfileBtn" onclick="toggleProfileEdit()"><i class="ti ti-edit"></i>Edit profile</button>
+    </div>
+  </div>
+
+  <div class="grid grid-12">
+    <div class="span-8">
+      <div class="card">
+        <div class="flex flex-gap" style="align-items:flex-start">
+          <div class="avatar-circle lg">BP</div>
+          <div style="flex:1">
+            <p class="mt" style="font-size:20px;font-family:var(--font-display)" id="profName">Bucharest Prime Realty</p>
+            <p class="ms" id="profRole">Founded 2019 · Headquartered in Bucharest, Romania</p>
+            <div class="pill-row" style="margin-top:10px">
+              <span class="badge badge-active"><i class="ti ti-rosette-discount-check"></i>Verified agency</span>
+              <span class="badge badge-info"><i class="ti ti-certificate"></i>License RO-AG-1188</span>
+              <span class="badge badge-neutral"><i class="ti ti-certificate"></i>FIABCI member</span>
+            </div>
+          </div>
+        </div>
+        <hr class="rule">
+        <p class="ms" id="profBio" contenteditable="false">A boutique agency specialized in premium residential properties across Bucharest and Cluj-Napoca, with a growing cross-border referral network in France, the UAE and Italy. 14 agents, 3 markets, and a reputation built on fast, transparent transactions.</p>
+        <div class="field-row" style="margin-top:16px" id="profEditFields">
+          <div class="field"><label class="field-label">Agency URL</label><input class="input" value="lucihome.com/agencies/bucharest-prime-realty" disabled></div>
+          <div class="field"><label class="field-label">Contact WhatsApp</label><input class="input" value="+40 7xx xxx xxx" disabled></div>
+        </div>
+      </div>
+
+      <div class="card" style="margin-top:16px">
+        <p class="mt">Reviews &amp; ratings</p>
+        <p class="ms" style="margin-bottom:10px"><span class="stars">★★★★★</span> 4.8 out of 5 · 63 verified reviews</p>
+        <div class="feed-item"><div class="fi-icon"><i class="ti ti-quote"></i></div><div class="fi-text"><p>"Professional from start to finish — our cross-border purchase closed in six weeks." — The Marsh family</p><span>Sale completed, Herastrau</span></div></div>
+        <div class="feed-item"><div class="fi-icon"><i class="ti ti-quote"></i></div><div class="fi-text"><p>"Reliable referral partner, fast communication on every deal." — Partner agency, Paris</p><span>Referral completed</span></div></div>
+      </div>
+
+      <div class="card" style="margin-top:16px">
+        <p class="mt">Agent roster (public)</p>
+        <p class="ms" style="margin-bottom:10px">Every agency agent listed on the public profile, each with a mini-profile card.</p>
+        <div id="publicRosterList" class="grid grid-3"></div>
+      </div>
+    </div>
+
+    <div class="span-4">
+      <div class="card" style="margin-bottom:16px">
+        <p class="mt">Markets covered</p>
+        <div class="pill-row market-tag-row">
+          <span class="pill on">Bucharest</span><span class="pill on">Cluj-Napoca</span><span class="pill">Constanta</span>
+        </div>
+      </div>
+      <div class="card" style="margin-bottom:16px">
+        <p class="mt">Stats &amp; milestones</p>
+        <div class="grid grid-2" style="gap:10px">
+          <div class="mini-stat"><p class="v">312</p><p class="l">Properties sold</p></div>
+          <div class="mini-stat"><p class="v">€38.6M</p><p class="l">Total volume</p></div>
+          <div class="mini-stat"><p class="v">3</p><p class="l">Markets covered</p></div>
+          <div class="mini-stat"><p class="v">7</p><p class="l">Years active</p></div>
+        </div>
+      </div>
+      <div class="card" style="margin-bottom:16px">
+        <p class="mt">Brand color</p>
+        <p class="ms" style="margin-bottom:10px">Applied to your public profile header and listing cards.</p>
+        <div class="color-swatches" id="colorSwatches"></div>
+      </div>
+      <div class="card">
+        <p class="mt">Embeddable listing widget</p>
+        <p class="ms" style="margin-bottom:10px">Show your active listings on your own website, always live-synced with LuciHome.</p>
+        <div class="embed-box">&lt;script src="lucihome.com/embed/bucharest-prime-realty.js"&gt;&lt;/script&gt;</div>
+        <button class="btn-secondary btn-sm btn-block" onclick="copyEmbed()"><i class="ti ti-copy"></i>Copy embed code</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ======================================================================
+     ANALYTICS
+====================================================================== -->
+<section class="module-section" id="section-analytics">
+  <div class="breadcrumb"><i class="ti ti-chart-bar"></i> Agency Workspace / Analytics</div>
+  <div class="page-header">
+    <div>
+      <h1 class="page-title">Agency Performance Analytics</h1>
+      <p class="page-sub">Not just one agent — the full picture. Which markets are performing, which agents are producing, and where leads are coming from.</p>
+    </div>
+    <div class="page-actions">
+      <button class="btn-secondary" onclick="exportReport()"><i class="ti ti-file-export"></i>Export report</button>
+    </div>
+  </div>
+
+  <div class="section-label" style="margin-top:0">Agent performance comparison</div>
+  <div class="card" style="margin-bottom:24px">
+    <table class="data-table">
+      <thead><tr><th>Agent</th><th>Listings</th><th>Leads</th><th>Closed</th><th>Revenue</th><th>Score</th></tr></thead>
+      <tbody id="agentPerfBody"></tbody>
+    </table>
+  </div>
+
+  <div class="grid grid-12">
+    <div class="span-8">
+      <div class="card" style="margin-bottom:16px">
+        <p class="mt">Market performance breakdown</p>
+        <div class="chart-wrap" id="marketPerfChart"></div>
+      </div>
+      <div class="card">
+        <p class="mt">Agency-wide lead funnel</p>
+        <div class="chart-wrap" id="leadFunnelChart"></div>
+      </div>
+    </div>
+
+    <div class="span-4">
+      <div class="card" style="margin-bottom:16px">
+        <p class="mt">Buyer origin</p>
+        <div class="chart-wrap" id="buyerOriginChart"></div>
+      </div>
+      <div class="card" style="margin-bottom:16px">
+        <p class="mt">Revenue &amp; commission</p>
+        <div class="mini-stat" style="margin-bottom:8px"><p class="v">€41,300</p><p class="l">Earned</p></div>
+        <div class="mini-stat" style="margin-bottom:8px"><p class="v">€22,600</p><p class="l">Pending</p></div>
+        <div class="mini-stat"><p class="v">€96,000</p><p class="l">Projected (pipeline)</p></div>
+      </div>
+      <div class="card">
+        <p class="mt">Referral analytics</p>
+        <div class="mini-stat" style="margin-bottom:8px"><p class="v">18</p><p class="l">Sent vs 11 received</p></div>
+        <div class="mini-stat"><p class="v">€9,400</p><p class="l">Revenue from referrals</p></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section-label">Listing performance overview</div>
+  <div class="card">
+    <p class="mt">Top listings by views — agency-wide</p>
+    <div class="chart-wrap" id="listingViewsChart"></div>
+  </div>
+</section>
+
+<!-- ======================================================================
+     SETTINGS
+====================================================================== -->
+<section class="module-section" id="section-settings">
+  <div class="breadcrumb"><i class="ti ti-settings"></i> Agency Workspace / Settings</div>
+  <div class="page-header">
+    <div>
+      <h1 class="page-title">Agency Settings</h1>
+      <p class="page-sub">Configured once by the manager — subscription, seats, notification rules, integrations, and compliance settings for the whole team.</p>
+    </div>
+  </div>
+
+  <div class="tabs">
+    <button class="tab-btn active" data-tab="settings-billing" onclick="switchTab('settings',this.dataset.tab)">Plan &amp; billing</button>
+    <button class="tab-btn" data-tab="settings-notif" onclick="switchTab('settings',this.dataset.tab)">Notifications</button>
+    <button class="tab-btn" data-tab="settings-integrations" onclick="switchTab('settings',this.dataset.tab)">Integrations</button>
+    <button class="tab-btn" data-tab="settings-compliance" onclick="switchTab('settings',this.dataset.tab)">Compliance</button>
+    <button class="tab-btn" data-tab="settings-prefs" onclick="switchTab('settings',this.dataset.tab)">Language &amp; regional</button>
+  </div>
+
+  <div class="tab-panel visible" id="settings-billing">
+    <div class="grid grid-12">
+      <div class="span-8">
+        <div class="card" style="margin-bottom:16px">
+          <div class="flex-between"><p class="mt">Current plan</p><span class="badge badge-active">Founding Agency</span></div>
+          <p class="ms">Unlimited agent seats during the beta — lifetime benefits for early sign-ups. Next billing date: August 30, 2026.</p>
+          <div class="grid grid-2" style="margin-top:14px">
+            <div class="mini-stat"><p class="v">€0</p><p class="l">Cost during beta</p></div>
+            <div class="mini-stat"><p class="v">0%</p><p class="l">Platform commission (beta)</p></div>
+          </div>
+          <button class="btn-primary" style="margin-top:16px" onclick="openModal('modal-upgrade')"><i class="ti ti-rocket"></i>View post-launch plans</button>
+        </div>
+        <div class="card">
+          <p class="mt">Agent seat management</p>
+          <p class="ms" style="margin-bottom:6px">14 of 20 included seats used.</p>
+          <div class="seat-meter"><div class="seat-meter-fill" style="width:70%"></div></div>
+          <button class="btn-secondary btn-sm" onclick="toast('info','Seats','Additional agent seats can be added without upgrading the whole plan (demo).')"><i class="ti ti-plus"></i>Add more seats</button>
+        </div>
+      </div>
+      <div class="span-4">
+        <div class="card">
+          <p class="mt">Payment method</p>
+          <p class="ms">No payment method is required during the Founding Agency period.</p>
+          <button class="btn-secondary btn-block" style="margin-top:10px" onclick="toast('info','Billing','Adding a payment method will be available starting August 2026.')">Add card</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="tab-panel" id="settings-notif">
+    <div class="card">
+      <div class="switch-row"><div><p class="st-label">New lead (unassigned)</p><p class="st-sub">Get notified when a new agency lead needs assignment</p></div><label class="switch"><input type="checkbox" checked><span class="track"></span></label></div>
+      <div class="switch-row"><div><p class="st-label">Stalled transaction</p><p class="st-sub">No activity for 5+ days on an open deal</p></div><label class="switch"><input type="checkbox" checked><span class="track"></span></label></div>
+      <div class="switch-row"><div><p class="st-label">Agent inactivity</p><p class="st-sub">An agent hasn't logged in for 3+ days</p></div><label class="switch"><input type="checkbox" checked><span class="track"></span></label></div>
+      <div class="switch-row"><div><p class="st-label">Referrals received</p><p class="st-sub">Notification when a referral is received or accepted</p></div><label class="switch"><input type="checkbox" checked><span class="track"></span></label></div>
+      <div class="switch-row"><div><p class="st-label">New reviews</p><p class="st-sub">A client or partner leaves a review</p></div><label class="switch"><input type="checkbox"><span class="track"></span></label></div>
+      <div class="switch-row"><div><p class="st-label">Weekly email summary</p><p class="st-sub">Agency performance summary every Monday</p></div><label class="switch"><input type="checkbox" checked><span class="track"></span></label></div>
+    </div>
+  </div>
+
+  <div class="tab-panel" id="settings-integrations">
+    <div class="grid grid-3">
+      <div class="card">
+        <i class="ti ti-database mi"></i><p class="mt">HubSpot CRM</p><p class="ms">Sync agency leads and contacts</p>
+        <button class="btn-secondary btn-block int-btn" style="margin-top:10px" data-name="HubSpot CRM" onclick="toggleIntegration(this)">Connect</button>
+      </div>
+      <div class="card">
+        <i class="ti ti-calendar mi"></i><p class="mt">Google Calendar</p><p class="ms">Sync the shared team calendar</p>
+        <button class="btn-secondary btn-block int-btn connected" style="margin-top:10px" data-name="Google Calendar" onclick="toggleIntegration(this)">Connected <i class="ti ti-check"></i></button>
+      </div>
+      <div class="card">
+        <i class="ti ti-brand-whatsapp mi"></i><p class="mt">WhatsApp Business API</p><p class="ms">Receive client messages directly in LuciHome</p>
+        <button class="btn-secondary btn-block int-btn" style="margin-top:10px" data-name="WhatsApp Business API" onclick="toggleIntegration(this)">Connect</button>
+      </div>
+      <div class="card">
+        <i class="ti ti-mail mi"></i><p class="mt">Brevo / Mailchimp</p><p class="ms">Agency email marketing campaigns</p>
+        <button class="btn-secondary btn-block int-btn" style="margin-top:10px" data-name="Email marketing" onclick="toggleIntegration(this)">Connect</button>
+      </div>
+      <div class="card">
+        <i class="ti ti-api mi"></i><p class="mt">API access</p><p class="ms">Future programmatic access to your agency data</p>
+        <button class="btn-secondary btn-block int-btn" style="margin-top:10px" data-name="API access" onclick="toggleIntegration(this)">Request access</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="tab-panel" id="settings-compliance">
+    <div class="card">
+      <p class="mt">GDPR &amp; data settings</p>
+      <p class="ms" style="margin-bottom:14px">Data retention policies, agent data export if an agent leaves, client data handling and opt-out management — GDPR compliant by default.</p>
+      <div class="switch-row"><div><p class="st-label">Retain client data after agent departure</p><p class="st-sub">Keeps the relationship with the agency instead of the individual agent</p></div><label class="switch"><input type="checkbox" checked><span class="track"></span></label></div>
+      <div class="switch-row"><div><p class="st-label">Allow clients to request data deletion</p><p class="st-sub">Self-service GDPR opt-out from the client portal</p></div><label class="switch"><input type="checkbox" checked><span class="track"></span></label></div>
+      <button class="btn-secondary" style="margin-top:12px" onclick="exportAccountData()"><i class="ti ti-download"></i>Export all agency data (JSON)</button>
+    </div>
+  </div>
+
+  <div class="tab-panel" id="settings-prefs">
+    <div class="card">
+      <div class="field-row">
+        <div class="field"><label class="field-label">Workspace language</label><select class="select"><option>English</option><option>Română</option><option>Français</option></select></div>
+        <div class="field"><label class="field-label">Default currency</label><select class="select"><option>EUR (€)</option><option>RON (lei)</option><option>USD ($)</option></select></div>
+      </div>
+      <div class="field-row">
+        <div class="field"><label class="field-label">Time zone</label><select class="select"><option>(GMT+3) Bucharest</option><option>(GMT+1) Paris</option><option>(GMT+4) Dubai</option></select></div>
+        <div class="field"><label class="field-label">Date format</label><select class="select"><option>DD/MM/YYYY</option><option>MM/DD/YYYY</option><option>YYYY-MM-DD</option></select></div>
+      </div>
+      <button class="btn-primary" onclick="toast('success','Saved','Your agency preferences have been updated.')"><i class="ti ti-device-floppy"></i>Save preferences</button>
+    </div>
+  </div>
+</section>
+
+</div>
+</main>
+</div>
+
+<!-- ======================================================================
+     CONTACT DETAIL DRAWER (Gmail-style slide-over reading pane)
+====================================================================== -->
+<div class="detail-drawer-backdrop" id="contactDrawerBackdrop" onclick="closeContactDrawer()"></div>
+<div class="detail-drawer" id="contactDrawer">
+  <div class="detail-drawer-head">
+    <h3 id="cdName">Client</h3>
+    <button class="detail-drawer-close" onclick="closeContactDrawer()">&times;</button>
+  </div>
+  <div class="detail-drawer-body" id="cdBody"></div>
+  <div class="detail-drawer-foot">
+    <button class="btn-ghost spacer" onclick="closeContactDrawer()">Close</button>
+    <button class="btn-primary" onclick="saveContactDetail()"><i class="ti ti-device-floppy"></i>Save</button>
+  </div>
+</div>
+
+<!-- ======================================================================
+     MODALS
+====================================================================== -->
+
+<!-- Add listing wizard -->
+<div class="modal-overlay" id="modal-add-listing">
+  <div class="modal wide">
+    <div class="modal-head"><h3>Add new listing</h3><button class="modal-close" onclick="closeModal('modal-add-listing')">&times;</button></div>
+    <div class="modal-body">
+      <div class="wizard-steps" id="wizardDots"></div>
+      <div id="wizardStep1">
+        <div class="field-row">
+          <div class="field"><label class="field-label">Listing title *</label><input class="input" id="wTitle" placeholder="e.g. 3-bedroom apartment, park view"></div>
+          <div class="field"><label class="field-label">Property type *</label><select class="select" id="wType"><option>Apartment</option><option>House / Villa</option><option>Penthouse</option><option>Studio</option><option>Land</option></select></div>
+        </div>
+        <div class="field-row">
+          <div class="field"><label class="field-label">Assign to agent *</label><select class="select" id="wAgent"></select></div>
+          <div class="field"><label class="field-label">Size (m²) *</label><input class="input" type="number" id="wSize" placeholder="e.g. 82"></div>
+        </div>
+      </div>
+      <div id="wizardStep2" style="display:none">
+        <div class="field-row">
+          <div class="field"><label class="field-label">Country *</label><select class="select" id="wCountry"></select></div>
+          <div class="field"><label class="field-label">Listing type *</label><select class="select" id="wTransactionType"><option value="sale">For Sale</option><option value="rent">For Rent</option></select></div>
+        </div>
+        <div class="field"><label class="field-label">City *</label><input class="input" id="wCity" placeholder="e.g. Bucharest"></div>
+        <div class="field"><label class="field-label">Neighborhood / area</label><input class="input" id="wZone" placeholder="e.g. Herastrau"></div>
+        <div class="note-box"><i class="ti ti-map-pin"></i> <strong>Map placement:</strong> in the live version, the agent pins an exact or approximate location (privacy toggle).</div>
+      </div>
+      <div id="wizardStep3" style="display:none">
+        <label class="field-label">Photos &amp; media</label>
+        <div class="empty-state" style="border:1.5px dashed var(--border-strong);border-radius:12px;cursor:pointer" onclick="simulateUpload()">
+          <i class="ti ti-cloud-upload"></i>
+          <p style="margin:0 0 4px;color:var(--text-secondary)">Drag photos here or click to upload</p>
+          <p style="margin:0;font-size:11px">JPG, PNG — up to 25 photos</p>
+        </div>
+        <div id="uploadedFilesList" style="margin-top:12px"></div>
+      </div>
+      <div id="wizardStep4" style="display:none">
+        <div class="field-row">
+          <div class="field"><label class="field-label">Price *</label><input class="input" type="number" id="wPrice" placeholder="e.g. 245000"></div>
+          <div class="field"><label class="field-label">Bedrooms</label><input class="input" type="number" id="wBeds" placeholder="e.g. 3"></div>
+        </div>
+        <label class="field-label">Amenities</label>
+        <div class="pill-row" id="wTags">
+          <span class="pill clickable" onclick="this.classList.toggle('on')">Pool</span>
+          <span class="pill clickable" onclick="this.classList.toggle('on')">Parking</span>
+          <span class="pill clickable on" onclick="this.classList.toggle('on')">Park view</span>
+          <span class="pill clickable" onclick="this.classList.toggle('on')">Pet friendly</span>
+          <span class="pill clickable on" onclick="this.classList.toggle('on')">Furnished</span>
+          <span class="pill clickable" onclick="this.classList.toggle('on')">Terrace</span>
+        </div>
+      </div>
+      <div id="wizardStep5" style="display:none">
+        <p class="ms" style="margin-bottom:10px">Fill in the basic details and let LuciHome AI write the final description — the agent can edit it any time.</p>
+        <button class="btn-secondary" onclick="wizardGenerateDesc()"><i class="ti ti-sparkles"></i>Generate with AI</button>
+        <textarea class="textarea" id="wDesc" style="min-height:140px;margin-top:12px" placeholder="The generated description will appear here — fully editable..."></textarea>
+      </div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn-ghost spacer" onclick="closeModal('modal-add-listing')">Cancel</button>
+      <button class="btn-secondary" id="wizardBackBtn" onclick="wizardNav(-1)" style="display:none">Back</button>
+      <button class="btn-primary" id="wizardNextBtn" onclick="wizardNav(1)">Continue</button>
+    </div>
+  </div>
+</div>
+
+<!-- Add lead / contact -->
+<div class="modal-overlay" id="modal-add-contact">
+  <div class="modal">
+    <div class="modal-head"><h3>Add new lead</h3><button class="modal-close" onclick="closeModal('modal-add-contact')">&times;</button></div>
+    <div class="modal-body">
+      <div class="field"><label class="field-label">Full name *</label><input class="input" id="cName" placeholder="e.g. Jane Whitfield"></div>
+      <div class="field-row">
+        <div class="field"><label class="field-label">Email</label><input class="input" id="cEmail" placeholder="jane@email.com"></div>
+        <div class="field"><label class="field-label">Phone</label><input class="input" id="cPhone" placeholder="+40 7xx xxx xxx"></div>
+      </div>
+      <div class="field-row">
+        <div class="field"><label class="field-label">Budget (€)</label><input class="input" type="number" id="cBudget" placeholder="e.g. 220000"></div>
+        <div class="field"><label class="field-label">Client type</label><select class="select" id="cType"><option>Buyer</option><option>Seller</option><option>Investor</option><option>Renter</option></select></div>
+      </div>
+      <div class="field"><label class="field-label">Assign to agent</label><select class="select" id="cAgent"></select></div>
+      <div class="field"><label class="field-label">Notes</label><textarea class="textarea" id="cNotes" placeholder="Preferences, context, how they were contacted..."></textarea></div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn-ghost spacer" onclick="closeModal('modal-add-contact')">Cancel</button>
+      <button class="btn-primary" onclick="addContact()"><i class="ti ti-check"></i>Add to CRM</button>
+    </div>
+  </div>
+</div>
+
+<!-- Send referral -->
+<div class="modal-overlay" id="modal-send-referral">
+  <div class="modal">
+    <div class="modal-head"><h3>Send a referral</h3><button class="modal-close" onclick="closeModal('modal-send-referral')">&times;</button></div>
+    <div class="modal-body">
+      <div class="field"><label class="field-label">Select client *</label>
+        <select class="select" id="rClient"></select>
+      </div>
+      <div class="field"><label class="field-label">Handling agent</label>
+        <select class="select" id="rAgentHandling"></select>
+      </div>
+      <div class="field"><label class="field-label">Destination market *</label>
+        <select class="select" id="rMarket"><option>Paris, France</option><option>Dubai, UAE</option><option>Barcelona, Spain</option><option>Milan, Italy</option><option>Cluj-Napoca, Romania</option></select>
+      </div>
+      <div class="field"><label class="field-label">Search partner agency</label><input class="input" id="rAgent" placeholder="e.g. Paris Prestige Immobilier" value="Paris Prestige Immobilier — Paris"></div>
+      <div class="field">
+        <label class="field-label">Referral commission: <span id="rPctVal">22</span>%</label>
+        <input type="range" min="10" max="30" value="22" id="rPct" style="width:100%;accent-color:var(--accent)" oninput="document.getElementById('rPctVal').textContent=this.value">
+      </div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn-ghost spacer" onclick="closeModal('modal-send-referral')">Cancel</button>
+      <button class="btn-primary" onclick="sendReferral()"><i class="ti ti-send"></i>Send referral</button>
+    </div>
+  </div>
+</div>
+
+<!-- Invite agent -->
+<div class="modal-overlay" id="modal-invite-agent">
+  <div class="modal">
+    <div class="modal-head"><h3>Invite an agent</h3><button class="modal-close" onclick="closeModal('modal-invite-agent')">&times;</button></div>
+    <div class="modal-body">
+      <p class="ms" style="margin-bottom:14px">An invitation link is sent by email — the agent registers individually and is linked to your agency account. You approve before they go live.</p>
+      <div class="field"><label class="field-label">Full name *</label><input class="input" id="iName" placeholder="e.g. Vlad Ionita"></div>
+      <div class="field"><label class="field-label">Email *</label><input class="input" id="iEmail" placeholder="vlad@email.com"></div>
+      <div class="field-row">
+        <div class="field"><label class="field-label">Role</label><select class="select" id="iRole"><option>Agent</option><option>Senior Agent</option><option>Junior Agent</option></select></div>
+        <div class="field"><label class="field-label">Primary market</label><input class="input" id="iMarket" placeholder="e.g. Bucharest"></div>
+      </div>
+      <div class="field"><label class="field-label">Commission split</label>
+        <select class="select" id="iSplit"><option>70 / 30 (agent / agency)</option><option>80 / 20 (agent / agency)</option><option>Custom per deal</option></select>
+      </div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn-ghost spacer" onclick="closeModal('modal-invite-agent')">Cancel</button>
+      <button class="btn-primary" onclick="inviteAgent()"><i class="ti ti-send"></i>Send invitation</button>
+    </div>
+  </div>
+</div>
+
+<!-- Agent detail -->
+<div class="modal-overlay" id="modal-agent-detail">
+  <div class="modal">
+    <div class="modal-head"><h3 id="agentDetailName">Agent</h3><button class="modal-close" onclick="closeModal('modal-agent-detail')">&times;</button></div>
+    <div class="modal-body" id="agentDetailBody"></div>
+    <div class="modal-foot">
+      <button class="btn-ghost spacer" onclick="closeModal('modal-agent-detail')">Close</button>
+      <button class="btn-danger" id="agentSuspendBtn" onclick="toggleSuspendAgent()"><i class="ti ti-user-off"></i>Suspend agent</button>
+    </div>
+  </div>
+</div>
+
+<!-- Upgrade plans -->
+<div class="modal-overlay" id="modal-upgrade">
+  <div class="modal wide">
+    <div class="modal-head"><h3>Post-launch agency plans</h3><button class="modal-close" onclick="closeModal('modal-upgrade')">&times;</button></div>
+    <div class="modal-body">
+      <div class="grid grid-3">
+        <div class="card"><p class="mt">Starter Agency</p><p class="stat-card value" style="font-size:26px">€0</p><p class="ms">Up to 5 agent seats, basic CRM features.</p></div>
+        <div class="card active"><p class="mt">Professional Agency</p><p class="stat-card value" style="font-size:26px">€29/seat/mo</p><p class="ms">Unlimited listings, AI tools, international referrals, analytics.</p></div>
+        <div class="card"><p class="mt">Enterprise</p><p class="stat-card value" style="font-size:26px">Custom</p><p class="ms">Large teams, dedicated support, API access, custom integrations.</p></div>
+      </div>
+    </div>
+    <div class="modal-foot"><button class="btn-secondary spacer" onclick="closeModal('modal-upgrade')">Close</button><button class="btn-primary" onclick="closeModal('modal-upgrade');toast('info','Founding Member','You are already on the Founding Agency plan — nothing is needed until launch.')">Got it</button></div>
+  </div>
+</div>
+
+<div class="toast-stack" id="toastStack"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="supabase-client.js"></script>
+<script src="agenciesdemo.js"></script>
+</body>
+</html>
