@@ -67,7 +67,7 @@
     <div class="dropdown" id="avatarDropdown">
       <div class="topbar-avatar" id="avatarBtn" title="Your account">DC</div>
       <div class="dropdown-panel" id="avatarPanel">
-        <div class="dropdown-header"><strong>Diana Cristescu</strong>Agency Manager · Bucharest Prime Realty</div>
+        <div class="dropdown-header"><strong id="topbarUserName">—</strong><span id="topbarUserRole">—</span></div>
         <div class="dropdown-item" onclick="showSection('brand');closeAllDropdowns()"><i class="ti ti-building-skyscraper"></i>Agency profile</div>
         <div class="dropdown-item" onclick="showSection('settings');closeAllDropdowns()"><i class="ti ti-settings"></i>Settings</div>
         <div class="dropdown-sep"></div>
@@ -124,8 +124,8 @@
   <div class="breadcrumb"><i class="ti ti-layout-dashboard"></i> Agency Workspace / Dashboard</div>
   <div class="page-header">
     <div>
-      <h1 class="page-title">Good morning, Diana</h1>
-      <p class="page-sub">Here's how Bucharest Prime Realty is doing today, July 11, 2026 — across all 14 agents. 3 items need your attention and 2 leads are still unassigned.</p>
+      <h1 class="page-title" id="greetingTitle">Good morning</h1>
+      <p class="page-sub" id="greetingSub">Loading your agency overview...</p>
     </div>
     <div class="page-actions">
       <button class="btn-secondary" onclick="showSection('analytics')"><i class="ti ti-chart-bar"></i>View full report</button>
@@ -135,8 +135,8 @@
 
   <div class="section-label" style="margin-top:0">Agency-wide overview</div>
   <div class="grid grid-4" style="margin-bottom:28px">
-    <div class="stat-card"><div class="value">14</div><div class="label">Active agents</div><div class="delta up"><i class="ti ti-trending-up"></i> +2 this quarter</div></div>
-    <div class="stat-card"><div class="value">87</div><div class="label">Active listings</div><div class="delta up"><i class="ti ti-trending-up"></i> +9 this month</div></div>
+    <div class="stat-card"><div class="value" id="statActiveAgents">—</div><div class="label">Active agents</div></div>
+    <div class="stat-card"><div class="value" id="statActiveListings">—</div><div class="label">Active listings</div></div>
     <div class="stat-card"><div class="value">23</div><div class="label">Open transactions</div><div class="delta down"><i class="ti ti-minus"></i> unchanged</div></div>
     <div class="stat-card"><div class="value">€2.4M</div><div class="label">Pipeline value</div><div class="delta up"><i class="ti ti-trending-up"></i> +€180k this month</div></div>
   </div>
@@ -207,10 +207,10 @@
   </div>
 
   <div class="grid grid-4" style="margin-bottom:24px">
-    <div class="mini-stat"><p class="v">14</p><p class="l">Active agents</p></div>
-    <div class="mini-stat"><p class="v">2</p><p class="l">Pending invites</p></div>
+    <div class="mini-stat"><p class="v" id="statTeamActiveAgents">—</p><p class="l">Active agents</p></div>
+    <div class="mini-stat"><p class="v" id="statPendingInvites">—</p><p class="l">Pending invites</p></div>
     <div class="mini-stat"><p class="v">6.4h</p><p class="l">Avg. lead response time</p></div>
-    <div class="mini-stat"><p class="v">14 / 20</p><p class="l">Seats used</p></div>
+    <div class="mini-stat"><p class="v" id="statSeatsUsed">—</p><p class="l">Seats used</p></div>
   </div>
 
   <div class="card" style="margin-bottom:20px">
@@ -655,8 +655,8 @@
         </div>
         <div class="card">
           <p class="mt">Agent seat management</p>
-          <p class="ms" style="margin-bottom:6px">14 of 20 included seats used.</p>
-          <div class="seat-meter"><div class="seat-meter-fill" style="width:70%"></div></div>
+          <p class="ms" style="margin-bottom:6px" id="statSeatMeterText">— of 20 included seats used.</p>
+          <div class="seat-meter"><div class="seat-meter-fill" id="seatMeterFill" style="width:0%"></div></div>
           <button class="btn-secondary btn-sm" onclick="toast('info','Seats','Additional agent seats can be added without upgrading the whole plan (demo).')"><i class="ti ti-plus"></i>Add more seats</button>
         </div>
       </div>
