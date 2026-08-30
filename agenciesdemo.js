@@ -13,17 +13,7 @@ const BRAND_COLORS = ['#1A73E8','#188038','#9334E6','#D93025','#F29900','#12B5CB
 
 const state = {
 
-  agents: [
-    {id:1, name:'Elena Radu', initials:'ER', role:'Senior Agent', market:'Bucharest', listings:14, leads:9, closed:6, revenue:9200, responseTime:'3.1h', status:'active', bio:'Specialized in premium apartments in Herastrau and Pipera.'},
-    {id:2, name:'Mihai Stan', initials:'MS', role:'Agent', market:'Cluj-Napoca', listings:11, leads:7, closed:4, revenue:6400, responseTime:'5.4h', status:'active', bio:'Focused on the Zorilor and Grigorescu neighborhoods.'},
-    {id:3, name:'Corina Dobre', initials:'CD', role:'Agent', market:'Bucharest', listings:9, leads:6, closed:3, revenue:5100, responseTime:'4.0h', status:'active', bio:'Works mainly with first-time buyers and renters.'},
-    {id:4, name:'Vlad Ionita', initials:'VI', role:'Junior Agent', market:'Constanta', listings:5, leads:4, closed:1, revenue:1800, responseTime:'9.2h', status:'active', bio:'New to the team — listings require manager approval.'},
-    {id:5, name:'Ana Maria Petrescu', initials:'AP', role:'Senior Agent', market:'Cluj-Napoca', listings:13, leads:8, closed:5, revenue:8300, responseTime:'2.8h', status:'active', bio:'Top performer two quarters running, luxury segment.'},
-    {id:6, name:'Radu Barbu', initials:'RB', role:'Agent', market:'Bucharest', listings:8, leads:5, closed:2, revenue:3600, responseTime:'6.7h', status:'active', bio:'Handles investor clients and rental yield properties.'},
-    {id:7, name:'Diana Cristescu', initials:'DC', role:'Manager', market:'Bucharest', listings:6, leads:3, closed:2, revenue:4200, responseTime:'1.5h', status:'active', bio:'Agency manager — oversees the full team and pipeline.'},
-    {id:8, name:'Teodora Marin', initials:'TM', role:'Agent', market:'Bucharest', listings:0, leads:0, closed:0, revenue:0, responseTime:'—', status:'invited', bio:'Invitation sent, awaiting registration.'},
-  ],
-  agentSuspended:{},
+  agents: [], // loaded from Supabase (memberships + invitations) at init()
 
   feed: [
     {id:1, icon:'ti-user-check', text:'<strong>Elena Radu</strong> submitted "Pipera Villa" for approval.', time:'22 min ago', read:false},
@@ -508,20 +498,40 @@ function openAgentDetail(id){
     <div class="field"><label class="field-label">Commission split</label><select class="select"><option>70 / 30 (agent / agency)</option><option>80 / 20 (agent / agency)</option><option>Custom per deal</option></select></div>
   `;
   const suspendBtn = document.getElementById('agentSuspendBtn');
-  const isSuspended = !!state.agentSuspended[id];
-  suspendBtn.innerHTML = isSuspended ? '<i class="ti ti-user-check"></i>Reactivate agent' : '<i class="ti ti-user-off"></i>Suspend agent';
+  if(a.dbType === 'owner'){
+    suspendBtn.style.display = 'none';
+  } else if(a.dbType === 'invitation'){
+    suspendBtn.style.display = '';
+    suspendBtn.innerHTML = '<i class="ti ti-x"></i>Cancel invitation';
+  } else {
+    suspendBtn.style.display = '';
+    const isSuspended = a.status === 'suspended';
+    suspendBtn.innerHTML = isSuspended ? '<i class="ti ti-user-check"></i>Reactivate agent' : '<i class="ti ti-user-off"></i>Suspend agent';
+  }
   suspendBtn.dataset.agentId = id;
   openModal('modal-agent-detail');
 }
-function toggleSuspendAgent(){
+async function toggleSuspendAgent(){
   const id = Number(document.getElementById('agentSuspendBtn').dataset.agentId);
-  const isSuspended = !!state.agentSuspended[id];
-  state.agentSuspended[id] = !isSuspended;
-  closeModal('modal-agent-detail');
   const a = state.agents.find(x=>x.id===id);
-  toast(isSuspended?'success':'warning', isSuspended?'Agent reactivated':'Agent suspended', isSuspended
+  if(!a) return;
+  closeModal('modal-agent-detail');
+
+  if(a.dbType === 'invitation'){
+    const { error } = await supabaseClient.from('invitations').delete().eq('id', a.dbId);
+    if(error){ toast('warning','Could not cancel invitation', error.message); return; }
+    await loadAgentsFromDB(); renderAgents(); updateSidebarCounts();
+    toast('success','Invitation canceled', `The invitation to ${a.name} has been canceled.`);
+    return;
+  }
+
+  const newStatus = a.status === 'suspended' ? 'active' : 'suspended';
+  const { error } = await supabaseClient.from('memberships').update({ status: newStatus }).eq('id', a.dbId);
+  if(error){ toast('warning','Could not update agent', error.message); return; }
+  await loadAgentsFromDB(); renderAgents(); updateSidebarCounts();
+  toast(newStatus==='active'?'success':'warning', newStatus==='active'?'Agent reactivated':'Agent suspended', newStatus==='active'
     ? `${a.name} has regained access to the workspace.`
-    : `${a.name}'s listings will be reassigned or unpublished. Full activity history is retained (demo).`);
+    : `${a.name} has been suspended.`);
 }
 
 function renderTeamAgenda(){
@@ -652,6 +662,55 @@ async function insertListingToDB({ title, country, city, transactionType, dbType
   if(detailsError){ toast('warning', 'Listing saved, but details failed', detailsError.message); return null; }
 
   return listing.id;
+}
+
+/* ---------------------------------------------------------------------- */
+/* TEAM / AGENTS — real memberships + pending invitations                  */
+/* ---------------------------------------------------------------------- */
+const ROLE_TO_DB = {'Manager':'manager','Senior Agent':'senior_agent','Agent':'agent','Junior Agent':'junior_agent'};
+const ROLE_FROM_DB = {manager:'Manager', senior_agent:'Senior Agent', agent:'Agent', junior_agent:'Junior Agent', owner:'Manager', member:'Agent'};
+
+async function loadAgentsFromDB(){
+  if(!currentOrgId) return;
+
+  const [{ data: allMembers, error: mErr }, { data: invites, error: iErr }] = await Promise.all([
+    supabaseClient.from('memberships').select('*, profiles(*)').eq('organization_id', currentOrgId),
+    supabaseClient.from('invitations').select('*').eq('organization_id', currentOrgId).eq('status', 'pending'),
+  ]);
+  if(mErr) toast('warning', 'Could not load team', mErr.message);
+  if(iErr) toast('warning', 'Could not load invitations', iErr.message);
+
+  const memberAgents = (allMembers || []).map(m => {
+    const p = m.profiles;
+    return {
+      id: nextId++, dbId: m.id, dbType: 'membership',
+      name: p ? p.full_name : 'Unknown', initials: p ? p.initials : '—',
+      role: ROLE_FROM_DB[m.role] || 'Agent',
+      market: (p && p.market) || '—',
+      listings: 0, leads: 0, closed: 0, revenue: 0, responseTime: '—',
+      status: m.status === 'suspended' ? 'suspended' : 'active',
+      bio: '',
+    };
+  });
+
+  const invitedAgents = (invites || []).map(inv => ({
+    id: nextId++, dbId: inv.id, dbType: 'invitation',
+    name: inv.email, initials: '—',
+    role: ROLE_FROM_DB[inv.role] || 'Agent',
+    market: '—',
+    listings: 0, leads: 0, closed: 0, revenue: 0, responseTime: '—',
+    status: 'invited', bio: 'Invitation sent, awaiting registration.',
+  }));
+
+  const ownerAgent = {
+    id: nextId++, dbId: null, dbType: 'owner',
+    name: currentProfile.full_name, initials: currentProfile.initials || '—',
+    role: 'Manager', market: currentProfile.market || '—',
+    listings: 0, leads: 0, closed: 0, revenue: 0, responseTime: '—',
+    status: 'active', bio: 'Agency owner — oversees the full team and pipeline.',
+  };
+
+  state.agents = [ownerAgent, ...memberAgents, ...invitedAgents];
 }
 
 function agentName(id){ const a = state.agents.find(x=>x.id===id); return a ? a.name : 'Unassigned'; }
@@ -1215,19 +1274,28 @@ function toggleIntegration(btn){
   btn.innerHTML = connected ? 'Connected <i class="ti ti-check"></i>' : 'Connect';
   toast(connected?'success':'info', connected?'Integration active':'Integration disabled', `${btn.dataset.name} is now ${connected?'connected':'disconnected'}.`);
 }
-function inviteAgent(){
-  const name = document.getElementById('iName').value.trim();
+async function inviteAgent(){
   const email = document.getElementById('iEmail').value.trim();
-  if(!name || !email){ toast('warning','Missing details','Please enter the agent\'s name and email.'); return; }
-  state.agents.push({
-    id: nextId++, name, initials: name.split(' ').map(n=>n[0]).join('').slice(0,2).toUpperCase(),
-    role: document.getElementById('iRole').value, market: document.getElementById('iMarket').value || 'Bucharest',
-    listings:0, leads:0, closed:0, revenue:0, responseTime:'—', status:'invited', bio:'Invitation sent, awaiting registration.',
+  const role = document.getElementById('iRole').value;
+  if(!email){ toast('warning','Missing details','Please enter the agent\'s email.'); return; }
+
+  const { error } = await supabaseClient.from('invitations').insert({
+    organization_id: currentOrgId,
+    email,
+    role: ROLE_TO_DB[role] || 'agent',
+    invited_by: currentProfile.id,
   });
+
+  if(error){
+    toast('warning','Could not send invitation', error.message);
+    return;
+  }
+
   closeModal('modal-invite-agent');
   ['iName','iEmail','iMarket'].forEach(id=>document.getElementById(id).value='');
+  await loadAgentsFromDB();
   renderAgents(); updateSidebarCounts();
-  toast('success','Invitation sent', `An invite has been emailed to ${email}.`);
+  toast('success','Invitation recorded', `${email} will be linked to your agency automatically once they create a LuciHome account with this email.`);
 }
 
 /* ---------------------------------------------------------------------- */
@@ -1252,6 +1320,7 @@ async function init(){
   currentOrgId = auth.profile.organization_id;
 
   await loadListingsFromDB();
+  await loadAgentsFromDB();
 
   renderFeed();
   renderAttentionList();
