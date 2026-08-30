@@ -520,7 +520,7 @@ async function toggleSuspendAgent(){
   if(a.dbType === 'invitation'){
     const { error } = await supabaseClient.from('invitations').delete().eq('id', a.dbId);
     if(error){ toast('warning','Could not cancel invitation', error.message); return; }
-    await loadAgentsFromDB(); renderAgents(); updateSidebarCounts();
+    await loadAgentsFromDB(); renderAgents(); updateSidebarCounts(); updateHeaderStats();
     toast('success','Invitation canceled', `The invitation to ${a.name} has been canceled.`);
     return;
   }
@@ -528,7 +528,7 @@ async function toggleSuspendAgent(){
   const newStatus = a.status === 'suspended' ? 'active' : 'suspended';
   const { error } = await supabaseClient.from('memberships').update({ status: newStatus }).eq('id', a.dbId);
   if(error){ toast('warning','Could not update agent', error.message); return; }
-  await loadAgentsFromDB(); renderAgents(); updateSidebarCounts();
+  await loadAgentsFromDB(); renderAgents(); updateSidebarCounts(); updateHeaderStats();
   toast(newStatus==='active'?'success':'warning', newStatus==='active'?'Agent reactivated':'Agent suspended', newStatus==='active'
     ? `${a.name} has regained access to the workspace.`
     : `${a.name} has been suspended.`);
@@ -1311,6 +1311,35 @@ function updateSidebarCounts(){
 }
 
 /* ---------------------------------------------------------------------- */
+/* HEADER / GREETING STATS — replace static demo numbers with real ones    */
+/* ---------------------------------------------------------------------- */
+let currentOrg = null;
+
+function updateHeaderStats(){
+  const activeAgents = state.agents.filter(a=>a.status==='active').length;
+  const pendingInvites = state.agents.filter(a=>a.status==='invited').length;
+  const firstName = (currentProfile.full_name||'').split(' ')[0] || 'there';
+  const orgName = currentOrg ? currentOrg.name : '';
+
+  document.getElementById('greetingTitle').textContent = `Good morning, ${firstName}`;
+  document.getElementById('greetingSub').textContent =
+    `Here's how ${orgName} is doing today — across ${activeAgents} active agent${activeAgents===1?'':'s'}.`;
+
+  document.getElementById('statActiveAgents').textContent = activeAgents;
+  document.getElementById('statActiveListings').textContent = state.listings.length;
+
+  document.getElementById('statTeamActiveAgents').textContent = activeAgents;
+  document.getElementById('statPendingInvites').textContent = pendingInvites;
+  document.getElementById('statSeatsUsed').textContent = `${activeAgents} / 20`;
+  document.getElementById('statSeatMeterText').textContent = `${activeAgents} of 20 included seats used.`;
+  const fill = document.getElementById('seatMeterFill');
+  if(fill) fill.style.width = Math.min(100, (activeAgents/20)*100) + '%';
+
+  document.getElementById('topbarUserName').textContent = currentProfile.full_name;
+  document.getElementById('topbarUserRole').textContent = orgName ? `Agency Manager · ${orgName}` : 'Agency Manager';
+}
+
+/* ---------------------------------------------------------------------- */
 /* INIT                                                                    */
 /* ---------------------------------------------------------------------- */
 async function init(){
@@ -1319,8 +1348,12 @@ async function init(){
   currentProfile = auth.profile;
   currentOrgId = auth.profile.organization_id;
 
+  const { data: org } = await supabaseClient.from('organizations').select('*').eq('id', currentOrgId).single();
+  currentOrg = org;
+
   await loadListingsFromDB();
   await loadAgentsFromDB();
+  updateHeaderStats();
 
   renderFeed();
   renderAttentionList();
