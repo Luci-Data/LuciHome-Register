@@ -15,39 +15,13 @@ const state = {
 
   agents: [], // loaded from Supabase (memberships + invitations) at init()
 
-  feed: [
-    {id:1, icon:'ti-user-check', text:'<strong>Elena Radu</strong> submitted "Pipera Villa" for approval.', time:'22 min ago', read:false},
-    {id:2, icon:'ti-user-plus', text:'New unassigned lead came in from the agency profile page.', time:'1 h ago', read:false},
-    {id:3, icon:'ti-arrows-exchange', text:'New referral received from <strong>Paris Prestige Immobilier</strong>.', time:'2 h ago', read:false},
-    {id:4, icon:'ti-signature', text:'<strong>Ana Maria Petrescu</strong> closed the Zorilor Penthouse deal.', time:'4 h ago', read:false},
-    {id:5, icon:'ti-alert-triangle', text:'Transaction "Old Town Studio" has had no activity for 6 days.', time:'yesterday, 5:40 PM', read:false},
-    {id:6, icon:'ti-home-2', text:'<strong>Mihai Stan</strong> published a new listing in Grigorescu.', time:'yesterday, 11:05 AM', read:true},
-  ],
+  feed: [], // real activity log — populated as the platform is used (coming soon)
 
-  attention: [
-    {icon:'ti-clock', danger:false, text:'2 leads have not been responded to in over 48 hours.', sub:'Corina Dobre, Radu Barbu'},
-    {icon:'ti-calendar-x', danger:false, text:'"Old Town Studio" listing expires in 3 days.', sub:'Assigned to Corina Dobre'},
-    {icon:'ti-alert-triangle', danger:true, text:'"Old Town Studio" transaction is missing the energy certificate.', sub:'Stalled 6 days — no activity'},
-  ],
+  attention: [], // real "needs attention" items — populated once CRM/Transactions are connected
 
-  teamAgenda: [
-    {time:'09:00', text:'Team stand-up — weekly pipeline review', sub:'All agents · 20 min', done:false},
-    {time:'11:30', text:'Elena Radu — viewing, Herastrau Apartment', sub:'With the Rhodes family', done:false},
-    {time:'14:00', text:'Deadline — Vlad Ionita listing approval', sub:'Pipera Villa submission', done:false},
-    {time:'16:30', text:'Ana Maria Petrescu — closing call, Zorilor Penthouse', sub:'Scheduled Tuesday', done:true},
-  ],
+  teamAgenda: [], // real team schedule — no fabricated meetings
 
-  resources: [
-    {id:1, name:'Agency onboarding guide.pdf', icon:'ti-file-text'},
-    {id:2, name:'Cross-border referral script.docx', icon:'ti-file-text'},
-    {id:3, name:'Q2 2026 market report — Bucharest.pdf', icon:'ti-file-text'},
-  ],
-
-  weekTrend:{
-    labels:['Mon','Tue','Wed','Thu','Fri','Sat','Sun'],
-    views:[820,910,860,1040,1180,990,1250],
-    leads:[4,6,5,8,7,5,9],
-  },
+  resources: [], // starts empty; agents can add real files here
 
   listings: [
     {id:1, title:'3-bedroom apartment with park view', city:'Herastrau, Bucharest', type:'Apartment', price:245000, beds:3, baths:2, size:98, status:'active', views:412, agentId:1, tags:['Park view','Furnished']},
@@ -330,17 +304,11 @@ function renderDonutChart(containerId, segments){
 }
 
 function renderDashboardCharts(){
-  renderLineChart('dashTrendChart', [
-    {name:'Listing views (agency-wide)', color:'#1A73E8', values:state.weekTrend.views},
-    {name:'New leads (×80 scale)', color:'#12B5CB', values:state.weekTrend.leads.map(v=>v*80)},
-  ], state.weekTrend.labels);
+  const trendEl = document.getElementById('dashTrendChart');
+  if(trendEl) trendEl.innerHTML = `<div class="empty-state"><i class="ti ti-chart-line"></i><p>Not enough activity yet to show a trend — this fills in over time.</p></div>`;
 
-  const segs = state.stages.map((s,i)=>({
-    label:s.label,
-    value: state.contacts.filter(c=>c.stage===s.id).length,
-    color: CHART_COLORS[i%CHART_COLORS.length],
-  }));
-  renderDonutChart('dashFunnelDonut', segs);
+  const funnelEl = document.getElementById('dashFunnelDonut');
+  if(funnelEl) funnelEl.innerHTML = `<div class="empty-state"><i class="ti ti-chart-donut"></i><p>Lead funnel will appear here once your CRM has contacts.</p></div>`;
 }
 
 function renderAnalyticsCharts(){
@@ -386,11 +354,11 @@ function renderAgentPerfTable(){
 /* ---------------------------------------------------------------------- */
 function renderFeed(){
   const list = document.getElementById('feedList');
-  list.innerHTML = state.feed.map(f=>`
+  list.innerHTML = state.feed.length ? state.feed.map(f=>`
     <div class="feed-item ${f.read?'':'unread'}" onclick="markFeedRead(${f.id})">
       <div class="fi-icon"><i class="ti ${f.icon}"></i></div>
       <div class="fi-text"><p>${f.text}</p><span>${f.time}</span></div>
-    </div>`).join('');
+    </div>`).join('') : `<div class="empty-state"><i class="ti ti-activity"></i><p>No activity yet — this fills in as your agency uses the platform.</p></div>`;
   updateNotifCount();
 }
 function markFeedRead(id){
@@ -413,27 +381,27 @@ function updateNotifCount(){
 }
 function renderNotifList(){
   const list = document.getElementById('notifList');
-  list.innerHTML = state.feed.slice(0,5).map(f=>`
+  list.innerHTML = state.feed.length ? state.feed.slice(0,5).map(f=>`
     <div class="notif-item ${f.read?'':'unread'}" onclick="markFeedRead(${f.id});showSection('dashboard')">
       <div class="notif-icon"><i class="ti ${f.icon}"></i></div>
       <div class="notif-text"><p>${f.text}</p><span>${f.time}</span></div>
-    </div>`).join('');
+    </div>`).join('') : `<div class="notif-item"><div class="notif-text"><p>No notifications yet</p></div></div>`;
 }
 document.getElementById('markAllReadBtn').addEventListener('click', markAllFeedRead);
 
 function renderAttentionList(){
   const list = document.getElementById('attentionList');
-  list.innerHTML = state.attention.map(a=>`
+  list.innerHTML = state.attention.length ? state.attention.map(a=>`
     <div class="attention-row">
       <div class="attention-icon ${a.danger?'danger':''}"><i class="ti ${a.icon}"></i></div>
       <div class="attention-text"><p>${a.text}</p><span>${a.sub}</span></div>
-    </div>`).join('');
+    </div>`).join('') : `<div class="empty-state"><i class="ti ti-circle-check"></i><p>Nothing needs your attention right now.</p></div>`;
 }
 
 function renderLeaderboard(){
   const list = document.getElementById('leaderboardList');
-  const ranked = [...state.agents].filter(a=>a.status==='active').sort((a,b)=>b.revenue-a.revenue).slice(0,6);
-  list.innerHTML = ranked.map((a,i)=>`
+  const ranked = [...state.agents].filter(a=>a.status==='active' && a.revenue>0).sort((a,b)=>b.revenue-a.revenue).slice(0,6);
+  list.innerHTML = ranked.length ? ranked.map((a,i)=>`
     <div class="leaderboard-row">
       <div class="lb-rank">${i+1}</div>
       <div style="flex:1;min-width:0">
@@ -441,7 +409,7 @@ function renderLeaderboard(){
         <p class="lb-sub">${a.closed} closed · ${a.market}</p>
       </div>
       <div class="lb-value"><p class="v">€${(a.revenue/1000).toFixed(1)}k</p><p class="l">revenue</p></div>
-    </div>`).join('');
+    </div>`).join('') : `<div class="empty-state"><i class="ti ti-trophy"></i><p>Leaderboard fills in once deals start closing.</p></div>`;
 }
 
 /* ---------------------------------------------------------------------- */
@@ -536,12 +504,12 @@ async function toggleSuspendAgent(){
 
 function renderTeamAgenda(){
   const list = document.getElementById('teamAgendaList');
-  list.innerHTML = state.teamAgenda.map((a,i)=>`
+  list.innerHTML = state.teamAgenda.length ? state.teamAgenda.map((a,i)=>`
     <div class="agenda-item ${a.done?'done':''}">
       <div class="agenda-time">${a.time}</div>
       <div class="agenda-text"><p>${a.text}</p><span>${a.sub}</span></div>
       <input type="checkbox" ${a.done?'checked':''} onchange="toggleTeamAgenda(${i})" style="accent-color:var(--accent);width:16px;height:16px;cursor:pointer">
-    </div>`).join('');
+    </div>`).join('') : `<div class="empty-state"><i class="ti ti-calendar"></i><p>No agenda items yet.</p></div>`;
 }
 function toggleTeamAgenda(i){
   state.teamAgenda[i].done = !state.teamAgenda[i].done;
@@ -549,11 +517,11 @@ function toggleTeamAgenda(i){
 }
 
 function renderResources(){
-  document.getElementById('resourcesList').innerHTML = state.resources.map(r=>`
+  document.getElementById('resourcesList').innerHTML = state.resources.length ? state.resources.map(r=>`
     <div class="feed-item" style="border:none;padding:8px 0;cursor:default">
       <div class="fi-icon"><i class="ti ${r.icon}"></i></div>
       <div class="fi-text"><p>${r.name}</p><span>Visible to all agents</span></div>
-    </div>`).join('');
+    </div>`).join('') : `<div class="empty-state"><i class="ti ti-folder"></i><p>No resources uploaded yet.</p></div>`;
 }
 function uploadResource(){
   const name = 'New resource — ' + new Date().toLocaleDateString('en-US') + '.pdf';
